@@ -1,0 +1,80 @@
+---
+title: "Presentation graphs"
+author: "Gage Clawson"
+date: "2/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(data.table)
+library(DT)
+
+pepela <- read_csv(file.path(here(), "Pepela/pepela_all_predictions_FINAL.csv")) %>%
+  select(-opt_in_out, -regression_type) %>%
+  mutate(village = "Pepela")
+
+psc <- read_csv(file.path(here(), "PuertoSanCarlos/psc_all_predictions_FINAL.csv")) %>%
+  select(-opt_in_out, -regression_type) %>%
+  mutate(village = "Puerto San Carlos")
+
+all_village_data <- rbind(pepela, psc)
+
+clogit_predictions <- read_csv("clogit_pooled_probs.csv") %>%
+  select(-lin_pred_probs, -probs_form) %>%
+  mutate(percentage = round(predict_probs*100,1))
+```
+
+
+How to make simulation graphs example:
+
+```{r}
+## filter for tech attributes and village. In this case I filtered for Pepela and sos == 1, info == 0, own == 1, but that would actually be what you select in the shiny app
+
+all_village_data %>%
+  filter(sos == 1, info == 0, own == 1, village == "Pepela") %>%
+  ggplot(aes(x = y, y = perc)) + 
+    geom_line() +
+    theme_bw() +
+    labs(x = "Cost to Fisher ($ per month)", y = "Proportion of Population to Opt In") +
+        scale_x_continuous(breaks = seq(-4, 6, by = 1)) +
+    scale_y_continuous(breaks = seq(0,1, 0.2))
+```
+
+OR you could try to make something like this, where SOS function is toggled.. but that would take away a drop down i suppose
+```{r}
+#Non anonymous, publicly available
+
+pepela %>%
+  filter(package %in% c(8,11), village == "Pepela") %>%
+  ggplot(aes(x = y, y = perc, color = factor(sos))) + 
+    geom_line() +
+    theme_bw() +
+    labs(title = "Pepela") +
+    labs(x = "Cost to Fisher ($ per month)", y = "Proportion of Population to Opt In") +
+        scale_x_continuous(breaks = seq(-4, 6, by = 1)) +
+    scale_color_manual(values = c("goldenrod1", "lightseagreen"), name = "SOS Functionality", labels = c("No", "Yes"))  +
+    scale_y_continuous(breaks = seq(0,1, 0.2))
+
+
+
+```
+
+CLOGIT Table example:
+
+```{r}
+table <- clogit_predictions %>%
+  filter(sos == 1 , info == 0, own == 1)  %>%
+  select(-package, -predict_probs)
+
+## maybe something like this, where in the shiny app you filter for the different technology attributes:
+DT::datatable(table)
+table
+
+
+```
+
+
+
