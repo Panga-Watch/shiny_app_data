@@ -6,7 +6,12 @@ library(shiny)
 library(tidyverse)
 library(shinythemes)
 
-ui <- navbarPage()
+ui <- navbarPage("Welcome",
+  theme = shinytheme("slate"),
+  tabPanel("First tab"),
+  tabPanel("Second tab"),
+  tabPanel("Third tab")
+  )
 
 
 
