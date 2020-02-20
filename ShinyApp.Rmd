@@ -1,0 +1,20 @@
+---
+title: "ShinyApp"
+author: "Corinna Hong"
+date: "February 20, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+# Load packages
+library(shiny)
+library(tidyverse)
+library(shinythemes)
+
+```
+
